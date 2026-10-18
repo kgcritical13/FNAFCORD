@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FNAFCORD</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+  :root{--bg:#070408;--panel:#0f0d12;--muted:#9aa0a6;--accent:#00ff66;--accent-2:#ff3547;--glass:rgba(255,255,255,0.03);--radius:12px}
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:radial-gradient(700px 300px at 10% 0%,rgba(255,53,71,0.03),transparent 10%),radial-gradient(600px 260px at 90% 100%,rgba(0,255,102,0.03),transparent 10%),#070408;color:#ddd;font-family:Inter,system-ui,Arial}
+  .app{display:flex;height:100vh;gap:12px;padding:18px}
+  .servers{width:84px;background:linear-gradient(180deg,var(--panel),#0b0d10);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;align-items:center}
+  .srv{width:56px;height:56px;border-radius:12px;background:transparent;border:2px solid rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--muted);cursor:pointer}
+  .srv.on{background:linear-gradient(135deg, rgba(255,53,71,0.08), rgba(0,255,102,0.03));color:#fff;border-color:rgba(255,255,255,0.04)}
+  .sidebar{width:260px;background:linear-gradient(180deg,var(--glass),var(--glass));border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:12px}
+  .server-title{display:flex;align-items:center;gap:8px}
+  .server-title h2{font-size:18px;margin:0;color:var(--accent-2)}
+  .channels{flex:1;overflow:auto;padding-right:6px}
+  .cat{font-size:12px;color:var(--muted);text-transform:uppercase;margin:12px 6px 6px}
+  .ch{padding:8px 10px;border-radius:8px;color:#ddd;display:flex;align-items:center;gap:8px;cursor:pointer;margin:6px;border:1px solid transparent}
+  .ch:hover{background:rgba(255,255,255,0.02)}
+  .ch.active{background:linear-gradient(90deg, rgba(255,53,71,0.03), rgba(0,255,102,0.02));border-color:rgba(255,255,255,0.02)}
+  .main{flex:1;display:flex;flex-direction:column;background:linear-gradient(180deg,transparent, rgba(255,255,255,0.01));border-radius:12px;overflow:hidden}
+  .ch-hdr{height:56px;padding:12px;border-bottom:1px solid rgba(255,255,255,0.02);display:flex;align-items:center;gap:12px}
+  .ch-hdr .title{font-weight:700;color:var(--accent)}
+  .msgs{flex:1;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
+  .msg{display:flex;gap:12px;align-items:flex-start}
+  .avatar{width:44px;height:44px;border-radius:8px;background:#111;border:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+  .bubble{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:10px 12px;border-radius:10px;max-width:72%;box-shadow:0 4px 18px rgba(0,0,0,0.6)}
+  .meta{font-size:12px;color:var(--muted);margin-bottom:6px}
+  .composer{display:flex;gap:8px;padding:12px;border-top:1px solid rgba(255,255,255,0.02);align-items:center}
+  .input{flex:1;padding:10px 12px;border-radius:10px;background:#0b0d10;border:1px solid rgba(255,255,255,0.02);color:#ddd;font-size:14px;min-height:48px}
+  .btn{padding:8px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
+  .btn.send{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#071}
+  .right{width:260px;background:linear-gradient(180deg,var(--glass),transparent);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px}
+  .member{display:flex;gap:8px;align-items:center;padding:6px;border-radius:6px}
+  .badge{font-size:10px;padding:2px 6px;border-radius:6px;margin-left:6px}
+  .owner{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff}
+  .admin{background:#f59e0b;color:#000}
+  .mod{background:#ed4245;color:#fff}
+  .muted{color:var(--muted)}
+  .kick-screen,.ban-screen{position:fixed;inset:0;z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px}
+  .kick-screen.vis,.ban-screen.vis{display:flex}
+  .ks-icon{font-size:72px;margin-bottom:24px}
+  .ks-title{font-size:32px;font-weight:700;color:#fff;margin-bottom:12px}
+  .ks-desc{font-size:16px;color:var(--muted);margin-bottom:32px}
+  .ks-btn{padding:14px 48px;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;border:none}
+  .ks-btn.rejoin{background:var(--accent);color:#071}
+  .rules-o{position:fixed;inset:0;background:rgba(0,0,0,0.78);z-index:350;display:none;align-items:center;justify-content:center}.rules-o.vis{display:flex}
+  .rules-modal{background:var(--panel);border-radius:12px;max-width:460px;width:92%;box-shadow:0 16px 48px rgba(0,0,0,.65);overflow:hidden}
+  .rules-banner{background:linear-gradient(135deg,#ed4245 0%,#9b1c1c 100%);padding:22px 24px 18px}
+  .rules-banner-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
+  .rules-body{padding:20px 24px 24px}
+  .rules-list li{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.02);font-size:14px;color:#e6e9ec}
+  .rules-ok{display:block;width:100%;padding:12px;background:var(--accent-2);color:#fff;border:none;border-radius:6px;font-size:15px;font-weight:600;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <div class="servers">
+      <div class="srv on">F</div>
+      <div class="srv">N</div>
+      <div class="srv">A</div>
+    </div>
+
+    <div class="sidebar">
+      <div class="server-title"><h2>FNAFCORD</h2><div style="margin-left:auto;color:var(--muted);font-size:12px">v1</div></div>
+      <div class="channels">
+        <div class="cat">Text Channels</div>
+        <div class="ch active" data-ch="general"># general</div>
+        <div class="ch" data-ch="security"># security</div>
+        <div class="ch" data-ch="announcements"># announcements</div>
+        <div class="cat">Voice</div>
+        <div class="ch" data-ch="stage">🔊 stage</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" id="openProfile">Profile</button>
+        <button class="btn" id="openRules">Rules</button>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="ch-hdr"><div class="title" id="chTitle"># general</div><div class="muted" id="chDesc" style="margin-left:auto">Welcome</div></div>
+      <div class="msgs" id="messages"></div>
+      <div class="composer">
+        <input type="file" id="fileInput" accept="image/*" style="display:none">
+        <button class="btn" id="attachBtn">Attach</button>
+        <textarea id="chatInput" class="input" placeholder="Message #general" rows="1"></textarea>
+        <button class="btn send" id="sendBtn">Send</button>
+      </div>
+    </div>
+
+    <div class="right">
+      <div><strong>ONLINE</strong></div>
+      <div id="memberList"></div>
+      <div style="margin-top:auto">
+        <div><strong>Commands</strong></div>
+        <div class="muted" style="font-size:13px">/auth &lt;rank&gt; &lt;password&gt; — authenticate yourself</div>
+        <div class="muted" style="font-size:13px">/auth set &lt;username&gt; &lt;rank&gt; — (owner/admin) set other's rank</div>
+        <div class="muted" style="font-size:13px">/kick &lt;username&gt; [reason] — kick a user</div>
+        <div class="muted" style="font-size:13px">/ban &lt;username&gt; [reason] — ban a user</div>
+        <div class="muted" style="font-size:13px">/mute &lt;username&gt; &lt;seconds&gt; — mute a user</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- kick/ban screens -->
+  <div class="kick-screen" id="kickScreen"><div class="ks-icon">👢</div><div class="ks-title">You've Been Kicked</div><div class="ks-desc">You were kicked from <strong id="kickSrv"></strong> by <span class="ks-by" id="kickBy"></span><span id="kickMsgDisplay"></span></div><button class="ks-btn rejoin" id="rejoinBtn">Rejoin</button></div>
+  <div class="ban-screen" id="banScreen"><div class="ks-icon">🔨</div><div class="ks-title">You've Been Banned</div><div class="ks-desc">You were permanently banned from <strong id="banSrv"></strong> by <span class="ks-by" id="banBy"></span>.<br><br>You cannot rejoin this server.</div></div>
+
+  <!-- rules modal -->
+  <div class="rules-o" id="rulesModal"><div class="rules-modal"><div class="rules-banner"><div class="rules-banner-title">📋 Server Rules</div><div class="rules-banner-sub">Read and follow these rules to keep the server safe and fun for everyone.</div></div><div class="rules-body"><ol class="rules-list"><li>No bad or offensive slurs of any kind.</li><li>No spamming the chat.</li><li>Be respectful.</li></ol><div style="margin-top:12px"><button class="rules-ok" id="rulesOk">I Understand</button></div></div></div></div>
+
+  <!-- profile modal -->
+  <div id="profileModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);align-items:center;justify-content:center;z-index:60"><div style="background:var(--panel);padding:16px;border-radius:10px;color:#e6e9ec;width:360px"><h3 style="margin-top:0">Profile</h3><div style="display:flex;gap:8px;align-items:center"><div id="profAv" style="width:64px;height:64px;border-radius:8px;background:#111;display:flex;align-items:center;justify-content:center">?</div><div style="flex:1"><input id="nameIn" placeholder="Display name" style="width:100%;padding:8px;border-radius:8px;background:#070607;border:1px solid rgba(255,255,255,0.02);color:#e6e9ec"><div style="margin-top:8px;display:flex;gap:8px"><button class="btn" id="avatarBtn">Upload</button><button class="btn" id="closeProf">Close</button></div></div></div><input type="file" id="profFile" accept="image/*" style="display:none"></div></div>
+
+  <script>
+  'use strict';
+  // Local real-time demo (BroadcastChannel + localStorage) with roles & commands
+
+  // Identity
+  const UID = localStorage.getItem('fnafc_uid') || ('u'+Math.random().toString(36).slice(2,9));
+  localStorage.setItem('fnafc_uid', UID);
+  let ME = { uid: UID, name: localStorage.getItem('fnafc_name') || 'Nightguard', avatar: localStorage.getItem('fnafc_avatar') || null };
+
+  // Server state (single server demo)
+  const SERVER = { code: 'fnaflobby', name: 'FNAF Lobby', banned: {}, members: {}, muted: {} };
+
+  // Roles store (persisted)
+  const RANKS = JSON.parse(localStorage.getItem('fnafc_ranks') || '{}' ); // uid -> rank
+  function saveRanks(){ localStorage.setItem('fnafc_ranks', JSON.stringify(RANKS)); }
+
+  // Simple credential map for demo (client-side only)
+  const AUTH_SECRETS = { owner: 'ownerpass', admin: 'adminpass', mod: 'modpass' };
+
+  // Broadcast channel for cross-tab messages
+  const BC_NAME = 'fnafc_channel_v1';
+  const bc = ('BroadcastChannel' in window) ? new BroadcastChannel(BC_NAME) : null;
+  if(bc) bc.onmessage = e => handleIncoming(e.data);
+  else window.addEventListener('storage', e => { if(e.key && e.key.startsWith('fnafc_bc_')){ try{ handleIncoming(JSON.parse(e.newValue)); }catch(e){} } });
+
+  // DOM refs
+  const messagesEl = document.getElementById('messages');
+  const chatInput = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const attachBtn = document.getElementById('attachBtn');
+  const fileInput = document.getElementById('fileInput');
+  const memberList = document.getElementById('memberList');
+  const chTitle = document.getElementById('chTitle');
+
+  // Local messages per channel
+  const MESSAGES = JSON.parse(localStorage.getItem('fnafc_messages') || '{}');
+  if(!MESSAGES['general']) MESSAGES['general'] = [];
+  let CURRENT_CHANNEL = 'general';
+
+  // Helpers
+  function now(){ const d=new Date(); return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+  function saveMessages(){ localStorage.setItem('fnafc_messages', JSON.stringify(MESSAGES)); }
+  function broadcast(obj){ try{ if(bc) bc.postMessage(obj); else localStorage.setItem('fnafc_bc_'+Date.now(), JSON.stringify(obj)); }catch(e){console.warn(e);} }
+
+  // Render functions
+  function renderMessages(){ messagesEl.innerHTML=''; (MESSAGES[CURRENT_CHANNEL]||[]).forEach(m=>{ const row=document.createElement('div'); row.className='msg'; const av=document.createElement('div'); av.className='avatar'; if(m.avatar){ const img=document.createElement('img'); img.src=m.avatar; img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover'; img.style.borderRadius='8px'; av.appendChild(img);} else av.textContent=(m.name||'?').charAt(0).toUpperCase(); const bubble=document.createElement('div'); bubble.className='bubble'; const meta=document.createElement('div'); meta.className='meta'; meta.innerHTML='<strong>'+escapeHtml(m.name)+'</strong> • <span class="muted">'+escapeHtml(m.time)+'</span>'; const text=document.createElement('div'); text.className='text'; text.innerHTML=escapeHtml(m.text||''); bubble.appendChild(meta); if(m.img){ const im=document.createElement('img'); im.src=m.img; im.style.maxWidth='320px'; im.style.borderRadius='8px'; im.style.display='block'; im.style.marginTop='8px'; bubble.appendChild(im);} bubble.appendChild(text); row.appendChild(av); row.appendChild(bubble); messagesEl.appendChild(row); }); messagesEl.scrollTop = messagesEl.scrollHeight; }
+  function escapeHtml(s){ return (s||'').replace(/[&<>'"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c])); }
+
+  function renderMembers(){ memberList.innerHTML=''; // include ME first
+    const list = Object.assign({}, SERVER.members); list[ME.uid] = { name: ME.name, avatar: ME.avatar };
+    Object.keys(list).forEach(uid => { const m=list[uid]; const row=document.createElement('div'); row.className='member'; const av=document.createElement('div'); av.className='avatar'; if(m.avatar){ const img=document.createElement('img'); img.src=m.avatar; img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover'; img.style.borderRadius='8px'; av.appendChild(img);} else av.textContent=(m.name||'?').charAt(0).toUpperCase(); const name=document.createElement('div'); name.innerHTML='<div>'+escapeHtml(m.name)+'</div>'; const badge=getBadge(uid); if(badge){ const b=document.createElement('span'); b.className='badge '+badge.class; b.textContent=badge.label; name.firstChild.appendChild(b); } row.appendChild(av); row.appendChild(name); memberList.appendChild(row); }); }
+
+  function getBadge(uid){ const r=RANKS[uid]||null; if(!r) return null; if(r==='owner') return {label:'OWNER', class:'owner'}; if(r==='admin') return {label:'ADMIN', class:'admin'}; if(r==='mod') return {label:'MOD', class:'mod'}; return null; }
+
+  // Message sending and command parsing
+  function sendMessage(text, img=null){ if(!text && !img) return; // if command
+    if(text && text.startsWith('/')){ handleCommand(text.trim()); return; }
+    const msg = { uid: ME.uid, name: ME.name, avatar: ME.avatar, text, time: now(), img };
+    MESSAGES[CURRENT_CHANNEL] = MESSAGES[CURRENT_CHANNEL] || []; MESSAGES[CURRENT_CHANNEL].push(msg); saveMessages(); renderMessages(); broadcast({type:'msg', channel: CURRENT_CHANNEL, msg}); }
+
+  sendBtn.addEventListener('click', ()=>{ sendMessage(chatInput.value); chatInput.value=''; });
+  chatInput.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); } });
+  attachBtn.addEventListener('click', ()=> fileInput.click());
+  fileInput.addEventListener('change', ()=>{ const f=fileInput.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ sendMessage('', r.result); fileInput.value=''; }; r.readAsDataURL(f); });
+
+  // Incoming handler
+  function handleIncoming(payload){ if(!payload) return; if(payload.type==='msg'){ const ch=payload.channel; MESSAGES[ch]=MESSAGES[ch]||[]; MESSAGES[ch].push(payload.msg); saveMessages(); if(ch===CURRENT_CHANNEL) renderMessages(); } else if(payload.type==='presence'){ SERVER.members[payload.uid]={name:payload.name, avatar:payload.avatar}; renderMembers(); } else if(payload.type==='action'){ handleRemoteAction(payload);} }
+
+  function handleRemoteAction(p){ if(p.action==='kicked'){ if(p.targetUid===ME.uid){ showKickScreen(p.by, p.reason); } if(SERVER.members[p.targetUid]) delete SERVER.members[p.targetUid]; renderMembers(); } else if(p.action==='banned'){ SERVER.banned[p.targetUid]=true; if(p.targetUid===ME.uid){ showBanScreen(p.by); } if(SERVER.members[p.targetUid]) delete SERVER.members[p.targetUid]; renderMembers(); } else if(p.action==='rank_update'){ RANKS[p.targetUid]=p.rank; saveRanks(); renderMembers(); } else if(p.action==='muted'){ SERVER.muted[p.targetUid]=true; renderMembers(); } }
+
+  // Command handling (local simulation)
+  function handleCommand(cmdLine){ const parts = cmdLine.slice(1).split(' '); const cmd = parts[0].toLowerCase(); const args = parts.slice(1);
+    if(cmd==='auth'){ // /auth <rank> <password> OR /auth set <username> <rank>
+      if(args[0]==='set'){ // owner/admin only
+        if(!isAtLeast(ME.uid,'admin')){ addSystem('You do not have permission to set ranks.'); return; }
+        const username = args[1]; const rank = args[2]; if(!username || !rank){ addSystem('Usage: /auth set <username> <rank>'); return; }
+        // find uid by username in members store
+        const targetUid = findUidByName(username); if(!targetUid){ addSystem('User not found: '+username); return; }
+        RANKS[targetUid]=rank; saveRanks(); broadcast({type:'action', action:'rank_update', targetUid:targetUid, rank:rank, by:ME.name}); addSystem('Set '+username+' to '+rank.toUpperCase()); return;
+      }
+      // self-auth: /auth <rank> <password>
+      const rank = args[0]; const pw = args[1]; if(!rank || !pw){ addSystem('Usage: /auth <rank> <password>'); return; }
+      if(AUTH_SECRETS[rank] && AUTH_SECRETS[rank]===pw){ RANKS[ME.uid]=rank; saveRanks(); broadcast({type:'action', action:'rank_update', targetUid:ME.uid, rank:rank, by:ME.name}); addSystem('Authenticated as '+rank.toUpperCase()); renderMembers(); } else { addSystem('Auth failed.'); }
+    }
+    else if(cmd==='kick'){ // /kick <username> [reason]
+      if(!isAtLeast(ME.uid,'mod')){ addSystem('Insufficient permission to kick'); return; }
+      const username = args[0]; if(!username){ addSystem('Usage: /kick <username> [reason]'); return; }
+      const reason = args.slice(1).join(' '); const target=findUidByName(username); if(!target){ addSystem('User not found'); return; }
+      // broadcast kick action
+      broadcast({type:'action', action:'kicked', targetUid:target, by:ME.name, reason:reason||''}); addSystem('Kicked '+username+(reason?(' — '+reason):''));
+    }
+    else if(cmd==='ban'){
+      if(!isAtLeast(ME.uid,'admin')){ addSystem('Insufficient permission to ban'); return; }
+      const username=args[0]; if(!username){ addSystem('Usage: /ban <username> [reason]'); return; }
+      const reason=args.slice(1).join(' '); const target=findUidByName(username); if(!target){ addSystem('User not found'); return; }
+      broadcast({type:'action', action:'banned', targetUid:target, by:ME.name, reason:reason||''}); addSystem('Banned '+username);
+    }
+    else if(cmd==='mute'){
+      if(!isAtLeast(ME.uid,'mod')){ addSystem('Insufficient permission to mute'); return; }
+      const username=args[0]; const secs=parseInt(args[1]||'0',10);
+      const target=findUidByName(username); if(!target){ addSystem('User not found'); return; }
+      SERVER.muted[target]=true; broadcast({type:'action', action:'muted', targetUid:target, by:ME.name, duration:secs||0}); addSystem('Muted '+username+(secs?(' for '+secs+'s'):'')); if(secs>0){ setTimeout(()=>{ delete SERVER.muted[target]; broadcast({type:'action', action:'unmuted', targetUid:target}); renderMembers(); }, secs*1000); }
+    }
+    else if(cmd==='help'){ addSystem('Available: /auth, /auth set, /kick, /ban, /mute'); }
+    else { addSystem('Unknown command: /'+cmd); }
+  }
+
+  // utility: find uid by display name from SERVER.members or local messages
+  function findUidByName(name){ name = name.toLowerCase(); for(const uid in SERVER.members){ if((SERVER.members[uid].name||'').toLowerCase()===name) return uid; } // search ranks and recent msgs
+    // also check local messages for names
+    for(const ch in MESSAGES){ for(const m of MESSAGES[ch]){ if((m.name||'').toLowerCase()===name) return m.uid; } }
+    return null; }
+
+  function isAtLeast(uid, rank){ const order = { user:0, mod:1, admin:2, owner:3 }; const r = RANKS[uid] || 'user'; return order[r] >= order[rank]; }
+
+  function addSystem(text){ MESSAGES[CURRENT_CHANNEL]=MESSAGES[CURRENT_CHANNEL]||[]; MESSAGES[CURRENT_CHANNEL].push({uid:'sys',name:'SYSTEM',text:text,time:now()}); saveMessages(); renderMessages(); }
+
+  // actions invoked by remote / local
+  function showKickScreen(by, reason){ document.getElementById('kickSrv').textContent = SERVER.name; document.getElementById('kickBy').textContent = by; document.getElementById('kickMsgDisplay').textContent = reason?(' — "'+reason+'"'):''; document.getElementById('kickScreen').classList.add('vis'); }
+  function showBanScreen(by){ document.getElementById('banSrv').textContent = SERVER.name; document.getElementById('banBy').textContent = by; document.getElementById('banScreen').classList.add('vis'); }
+
+  // send presence
+  function announce(){ broadcast({type:'presence', uid:ME.uid, name:ME.name, avatar:ME.avatar}); }
+  setInterval(announce, 8000);
+
+  // remote action handler
+  function handleRemoteAction(payload){ /* handled inside handleIncoming */ }
+
+  // hookup
+  function init(){ // load saved ranks
+    // ensure owner exists: first time run, assign current user as owner if no owner is set
+    if(!Object.values(RANKS).includes('owner')){ RANKS[ME.uid]='owner'; saveRanks(); }
+    // load members from last presence
+    renderMembers(); renderMessages(); announce(); }
+
+  // handle incoming messages/presence/actions
+  function handleIncoming(payload){ if(!payload) return; if(payload.type==='msg'){ MESSAGES[payload.channel]=MESSAGES[payload.channel]||[]; MESSAGES[payload.channel].push(payload.msg); saveMessages(); if(payload.channel===CURRENT_CHANNEL) renderMessages(); } else if(payload.type==='presence'){ SERVER.members[payload.uid]={name:payload.name, avatar:payload.avatar}; renderMembers(); } else if(payload.type==='action'){ if(payload.action==='kicked'){ if(payload.targetUid===ME.uid){ showKickScreen(payload.by, payload.reason); } if(SERVER.members[payload.targetUid]) delete SERVER.members[payload.targetUid]; renderMembers(); } else if(payload.action==='banned'){ SERVER.banned[payload.targetUid]=true; if(payload.targetUid===ME.uid){ showBanScreen(payload.by); } if(SERVER.members[payload.targetUid]) delete SERVER.members[payload.targetUid]; renderMembers(); } else if(payload.action==='rank_update'){ RANKS[payload.targetUid]=payload.rank; saveRanks(); renderMembers(); } else if(payload.action==='muted'){ SERVER.muted[payload.targetUid]=true; renderMembers(); } }
+  }
+
+  // wire up UI events
+  document.getElementById('openRules').addEventListener('click', ()=> document.getElementById('rulesModal').classList.add('vis'));
+  document.getElementById('rulesOk').addEventListener('click', ()=> document.getElementById('rulesModal').classList.remove('vis'));
+  document.getElementById('openProfile').addEventListener('click', ()=> document.getElementById('profileModal').style.display='flex');
+  document.getElementById('closeProf').addEventListener('click', ()=> document.getElementById('profileModal').style.display='none');
+  document.getElementById('avatarBtn').addEventListener('click', ()=> document.getElementById('profFile').click());
+  document.getElementById('profFile').addEventListener('change', e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ ME.avatar=r.result; localStorage.setItem('fnafc_avatar', ME.avatar); document.getElementById('profAv').innerHTML=''; const img=document.createElement('img'); img.src=ME.avatar; img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover'; img.style.borderRadius='8px'; document.getElementById('profAv').appendChild(img); announce(); renderMembers(); }; r.readAsDataURL(f); });
+  document.getElementById('nameIn').addEventListener('input', e=>{ ME.name=e.target.value || ME.name; localStorage.setItem('fnafc_name', ME.name); announce(); renderMembers(); });
+  document.getElementById('rejoinBtn').addEventListener('click', ()=> location.reload());
+
+  // channel click wiring
+  Array.from(document.querySelectorAll('.ch')).forEach(el=> el.addEventListener('click', ()=>{ Array.from(document.querySelectorAll('.ch')).forEach(c=>c.classList.remove('active')); el.classList.add('active'); CURRENT_CHANNEL = el.dataset.ch; chTitle.textContent = '# '+CURRENT_CHANNEL; renderMessages(); }))
+
+  // load saved and init
+  (function(){ try{ const savedRanks = JSON.parse(localStorage.getItem('fnafc_ranks')||'{}'); Object.assign(RANKS, savedRanks); }catch(e){} if(!Object.values(RANKS).includes('owner')){ RANKS[ME.uid]='owner'; saveRanks(); } renderMembers(); renderMessages(); announce(); })();
+
+  // expose small API for debugging
+  window.FNAFCORD = { ME, SERVER, RANKS, sendMessage, broadcast };
+  </script>
+</body>
+</html>
